@@ -32,6 +32,10 @@ const Schema = new mongoose.Schema({
   location: {
     type: PointSchema,
     index: '2dsphere'
+  },
+  createdAt: {
+    type: String,
+    required: true
   }
 })
 
