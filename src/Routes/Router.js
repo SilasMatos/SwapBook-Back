@@ -21,6 +21,9 @@ routes.get('/user/', UserController.index)
 routes.delete('/user/:user_id', UserController.deletedUser)
 routes.get('/user/:user_id', UserController.findUser) 
 routes.put('/user/:user_id', UserController.update);
+routes.post('/user/:user_id/favorites/:product_id', UserController.addToFavorites);
+routes.get('/user/:user_id/favorites', UserController.getFavorites);
+routes.delete('/user/:user_id/favorites/:product_id', UserController.removeFromFavorites);
 
 //Product 
 routes.post('/:user_id/product', upload.single('src'), ProductController.create)

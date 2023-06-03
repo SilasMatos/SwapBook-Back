@@ -1,5 +1,6 @@
 const moment = require('moment-timezone');
 const User = require('../Models/User')
+const Product = require('../Models/Product')
 const bcrypt = require('bcrypt')
 const currentDateTime = moment().tz('America/Sao_Paulo').format('YYYY-MM-DD HH:mm:ss');
 
@@ -130,12 +131,68 @@ const update = async (req, res) => {
     return res.status(400).send(err)
   }
 }
+const addToFavorites = async (req, res) => {
+  const { user_id, product_id } = req.params;
 
+  try {
+    const user = await User.findById(user_id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    if (user.favorites.includes(product_id)) {
+      return res.status(400).json({ message: 'Product already in favorites' });
+    }
+
+    user.favorites.push(product_id);
+    await user.save();
+
+    return res.status(200).json({ message: 'Product added to favorites' });
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+};
+const getFavorites = async (req, res) => {
+  const { user_id } = req.params;
+
+  try {
+    const user = await User.findById(user_id).populate('favorites');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    return res.status(200).json(user.favorites);
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+};
+const removeFromFavorites = async (req, res) => {
+  const { user_id, product_id } = req.params;
+
+  try {
+    const user = await User.findById(user_id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (!user.favorites.includes(product_id)) {
+      return res.status(400).json({ message: 'Product is not in favorites' });
+    }
+    user.favorites = user.favorites.filter((favorite) => favorite.toString() !== product_id);
+    await user.save();
+
+    return res.status(200).json({ message: 'Product removed from favorites' });
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+};
 
 module.exports = {
   create,
   deletedUser,
   findUser,
   index,
-  update
+  update,
+  addToFavorites,
+  getFavorites,
+  removeFromFavorites
 }
