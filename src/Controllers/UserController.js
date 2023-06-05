@@ -50,18 +50,24 @@ const create = async (req, res) => {
 const update = async (req, res) => {
   const { user_id } = req.params;
   const { auth } = req.headers;
-  const { name, email, phone, dateBirth, gender, password } = req.body;
+  const { name, email, phone, dateBirth, gender, password, currentPassword } = req.body;
   if (user_id !== auth) return res.status(400).send({ message: 'Não autorizado' });
+
   try {
+    const user = await User.findById(user_id);
+    if (!user) return res.status(404).json({ message: 'Usuário não encontrado' });
+
+    const passwordMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!passwordMatch) return res.status(400).json({ message: 'Senha atual incorreta' });
+
     let updatedUser = { name, email, phone, dateBirth, gender };
     if (password) {
-
       const hashedPassword = await bcrypt.hash(password, 10);
       updatedUser.password = hashedPassword;
     }
 
     updatedUser = await User.findByIdAndUpdate(user_id, updatedUser, { new: true });
-    return res.status(200).send({ status: 'updated', user: updatedUser });
+    return res.status(200).send({ status: 'atualizado', user: updatedUser });
   } catch (err) {
     return res.status(400).send(err);
   }
