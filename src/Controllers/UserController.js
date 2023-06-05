@@ -47,7 +47,27 @@ const create = async (req, res) => {
     return res.status(400).send(err)
   }
 }
+const update = async (req, res) => {
+  const { user_id } = req.params;
+  const { auth } = req.headers;
+  const { name, email, phone, dateBirth, gender, password } = req.body;
 
+  if (user_id !== auth) return res.status(400).send({ message: 'Não autorizado' });
+
+  try {
+    let updatedUser = { name, email, phone, dateBirth, gender };
+    if (password) {
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+      updatedUser.password = hashedPassword;
+    }
+
+    updatedUser = await User.findByIdAndUpdate(user_id, updatedUser, { new: true });
+    return res.status(200).send({ status: 'updated', user: updatedUser });
+  } catch (err) {
+    return res.status(400).send(err);
+  }
+};
 const deletedUser = async (req, res) => {
   const { user_id } = req.params
 
@@ -85,52 +105,6 @@ const index = async (req, res) => {
   }
 }
 
-const update = async (req, res) => {
-  const { user_id } = req.params
-  const { auth } = req.headers
-  const { name, email, password, phone, dateBirth, gender, latitude, longitude } = req.body
-
-  const location = {
-    type: 'Point',
-    coordinates: [longitude, latitude]
-  }
-
-  try {
-    const userToUpdate = await User.findById(user_id)
-    if (!userToUpdate) {
-      return res.status(404).send({ message: 'Usuário não encontrado' })
-    }
-
-    if (userToUpdate._id.toString() !== auth) {
-      return res.status(401).send({ message: 'Não Autorizado!' })
-    }
-
-    let updatedFields = {
-      name,
-      email,
-      password: hashPassword,
-      phone,
-      dateBirth,
-      gender,
-      location
-    }
-
-    if (password) {
-      const hashedPassword = await hashPassword(password)
-      updatedFields.password = hashedPassword
-    }
-
-    const updatedUser = await User.findByIdAndUpdate(
-      user_id,
-      { $set: updatedFields },
-      { new: true }
-    )
-
-    return res.status(200).send(updatedUser)
-  } catch (err) {
-    return res.status(400).send(err)
-  }
-}
 const addToFavorites = async (req, res) => {
   const { user_id, product_id } = req.params;
 
@@ -185,6 +159,7 @@ const removeFromFavorites = async (req, res) => {
     return res.status(400).json({ error: error.message });
   }
 };
+
 
 module.exports = {
   create,

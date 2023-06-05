@@ -18,7 +18,7 @@ const upload = multer({ storage: storage });
 //User 
 routes.post('/user', UserController.create)
 routes.get('/user/', UserController.index)
-routes.delete('/user/:user_id', UserController.deletedUser)
+routes.delete('/user/:user_id', UserController.deletedUser);
 routes.get('/user/:user_id', UserController.findUser) 
 routes.put('/user/:user_id', UserController.update);
 routes.post('/user/:user_id/favorites/:product_id', UserController.addToFavorites);
