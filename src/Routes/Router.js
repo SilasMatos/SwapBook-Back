@@ -21,6 +21,7 @@ routes.get('/user/', UserController.index)
 routes.delete('/user/:user_id', UserController.deletedUser);
 routes.get('/user/:user_id', UserController.findUser) 
 routes.put('/user/:user_id', UserController.update);
+routes.put('/user/password/:user_id', UserController.updatePassword);
 routes.post('/user/:user_id/favorites/:product_id', UserController.addToFavorites);
 routes.get('/user/:user_id/favorites', UserController.getFavorites);
 routes.delete('/user/:user_id/favorites/:product_id', UserController.removeFromFavorites);

@@ -47,7 +47,21 @@ const create = async (req, res) => {
     return res.status(400).send(err)
   }
 }
-const update = async (req, res) => {
+const update = async(req, res) => {
+  const { user_id } = req.params;
+  const { auth } = req.headers;
+  const { name, email, password, phone, dateBirth, gender,} = req.body
+
+if (user_id !== auth) return res.status(400).send({ message: 'Não autorizado' });
+
+try {
+  const updatedUser = await User.findByIdAndUpdate(user_id, req.body, { new: true });
+  return res.status(200).send({ status: 'updated', user: updatedUser });
+} catch (err) {
+  return res.status(400).send(err);
+}
+}
+const updatePassword = async (req, res) => {
   const { user_id } = req.params;
   const { auth } = req.headers;
   const { name, email, phone, dateBirth, gender, password, currentPassword } = req.body;
@@ -72,6 +86,8 @@ const update = async (req, res) => {
     return res.status(400).send(err);
   }
 };
+
+
 
 const deletedUser = async (req, res) => {
   const { user_id } = req.params
@@ -171,5 +187,6 @@ module.exports = {
   update,
   addToFavorites,
   getFavorites,
-  removeFromFavorites
+  removeFromFavorites,
+  updatePassword 
 }
