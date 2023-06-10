@@ -1,16 +1,54 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import './index.css'
-import App from './App'
-import 'bootstrap/dist/css/bootstrap.min.css'
-import 'mapbox-gl/dist/mapbox-gl.css';
-const root = ReactDOM.createRoot(document.getElementById('root'))
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
+const express = require('express')
+const http = require('http')
+const socketIO = require('socket.io')
+
+const mongoose = require('mongoose')
+require('dotenv').config()
+mongoose.set("strictQuery", false);
+
+const cors = require('cors')
+const router = require('./Routes/Router')
+
+const app = express()
+const server = http.createServer(app)
+const io = socketIO(server, {cors: {origin: `${process.env.API}`}})
+
+
+const dbUri = process.env.DB_URI;
+
+mongoose.connect(
+  dbUri,
+  {
+    useUnifiedTopology: true,
+    useNewUrlParser: true
+  },
+  () => console.log('Connected to database')
 )
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+io.on('connection', socket => {
+  console.log('Usuário conectado!', socket.id);
+
+  socket.on('disconnect', reason => {
+    console.log('Usuário desconectado!', socket.id)
+  })
+
+  socket.on('set_username', username => {
+    socket.data.username = username
+  })
+
+  socket.on('message', text => {
+    io.emit('receive_message', {
+      text, 
+      authorId: socket.id,
+      author: socket.data.username
+    })
+  })
+})
+
+app.use(cors())
+app.use(express.json())
+app.use('/uploads', express.static('uploads'));
+
+app.use(router)
+
+server.listen(3333, () => console.log('Server running on port 3333'))

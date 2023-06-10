@@ -3,7 +3,6 @@ const UserController = require('../Controllers/UserController')
 const SessionController = require('../Controllers/SessionController')
 const ProductController = require('../Controllers/ProductController')
 const ProductPjController = require('../Controllers/ProductPjController')
-const chatController = require('../Controllers/ChatController');
 const multer = require('multer');
 const routes = Router()
 const storage = multer.diskStorage({
@@ -47,7 +46,4 @@ routes.get('/productPj', ProductPjController.indexAll)
 routes.get('/productPj/:user_id', ProductPjController.indexByUser)
 routes.get('/productPj/this/:productPj_id', ProductPjController.indexProd)
 
-//Chat
-routes.get('/chats', chatController.getAllChats);
-routes.post('/chats', chatController.createChat);
 module.exports = routes
