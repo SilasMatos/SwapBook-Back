@@ -39,7 +39,7 @@ const currentDateTime = moment().tz('America/Sao_Paulo').format('YYYY-MM-DD HH:m
     }
     
     const update = async (req, res) => {
-  const { name, price, author, category, synopsis, year } = req.body;
+  const { name, price, author, category, synopsis, year, state, allowTrade,  showOnMap } = req.body;
   const { user_id, product_id } = req.params;
   const { auth } = req.headers;
 
@@ -68,6 +68,9 @@ const currentDateTime = moment().tz('America/Sao_Paulo').format('YYYY-MM-DD HH:m
         category,
         synopsis,
         year,
+        state,
+        allowTrade,
+        showOnMap,
         src: req.file.path,
       },
       { new: true }
